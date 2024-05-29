@@ -1,7 +1,7 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "version": "0.4.4",
+        "version": "0.4.5",
         "title": "smartCARS 3 Public API"
     },
     "paths": {
@@ -1808,7 +1808,8 @@
                     "rankLevel",
                     "rankImage",
                     "avatar",
-                    "session"
+                    "session",
+                    "expiry"
                 ],
                 "properties": {
                     "dbID": {
@@ -1847,6 +1848,10 @@
                     "session": {
                         "type": "string",
                         "pattern": "^[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*$"
+                    },
+                    "expiry": {
+                        "type": "integer",
+                        "format": "unix-time"
                     }
                 }
             }
