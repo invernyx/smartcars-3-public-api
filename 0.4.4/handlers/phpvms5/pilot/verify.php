@@ -96,6 +96,7 @@ echo(json_encode(array(
     'rankImage' => $rankImage,
     'rankLevel' => intval($result['ranklevel']),
     'avatar' => $avatar,
-    'session' => $_POST['session']
+    'session' => $_POST['session'],
+    'expiry' => $session[1]['exp'],
 )));
 ?>

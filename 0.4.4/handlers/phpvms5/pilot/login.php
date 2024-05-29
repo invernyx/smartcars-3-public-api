@@ -108,6 +108,7 @@ echo(json_encode(array(
     'rankImage' => $rankImage,
     'rankLevel' => intval($result['ranklevel']),
     'avatar' => $avatar,
-    'session' => $jwt
+    'session' => $jwt,
+    'expiry' => $expiry,
 )));
 ?>
