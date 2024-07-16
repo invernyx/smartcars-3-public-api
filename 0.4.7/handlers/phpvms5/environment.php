@@ -1,5 +1,5 @@
 <?php
-// smartCARS 0.4.6 API
+// smartCARS 0.4.7 API
 // phpVMS v5 handler
 // Designed to be run on PHP 5
 
