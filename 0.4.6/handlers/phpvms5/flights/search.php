@@ -196,7 +196,10 @@ foreach($results as $index=>$result)
     // Flight Level
     $results[$index]['flightLevel'] = intval($result['flightLevel']);
     // Flight Time
-    $results[$index]['flightTime'] = floatval($result['flightTime']);
+    $duration = $result['flightTime'];
+    $hours = floor($duration);
+    $minutes = ($duration - $hours) * (5 / 3);
+    $results[$index]['flightTime'] = floatval($hours + $minutes);
     // Aircraft
     $results[$index]['aircraft'] = intval($result['aircraft']);
 }

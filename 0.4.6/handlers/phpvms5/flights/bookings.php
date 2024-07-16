@@ -53,7 +53,10 @@ foreach($schedules as $idx=>$schedule)
     // Flight Level
     $schedules[$idx]['flightLevel'] = intval($schedules[$idx]['flightLevel']);
     // Flight Time
-    $schedules[$idx]['flightTime'] = floatval($schedules[$idx]['flightTime']);
+    $duration = $schedules[$idx]['flightTime'];
+    $hours = floor($duration);
+    $minutes = ($duration - $hours) * (5 / 3);
+    $schedules[$idx]['flightTime'] = floatval($hours + $minutes);
     // Aircraft
     $schedules[$idx]['aircraft'] = intval($schedules[$idx]['aircraft']);
 }
