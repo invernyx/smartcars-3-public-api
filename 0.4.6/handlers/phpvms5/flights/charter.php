@@ -85,6 +85,10 @@ switch($_POST['type']) {
         break;
 }
 
+$duration = abs(strtotime($_POST['arrivalTime']) - strtotime($_POST['departureTime'])) / 3600;
+$hours = floor($duration);
+$minutes = ($duration - $hours) * (3 / 5);
+
 $database->execute('INSERT INTO ' . dbPrefix . 'schedules
 (code,
 flightnum,
@@ -117,7 +121,7 @@ array(
     'type' => $_POST['type'],
     'deptime' => $_POST['departureTime'],
     'arrtime' => $_POST['arrivalTime'],
-    'flighttime' => abs(strtotime($_POST['arrivalTime']) - strtotime($_POST['departureTime'])) / 3600
+    'flighttime' => floatval($hours + $minutes)
 ));
 
 $database->execute('INSERT INTO ' . dbPrefix . 'bids (pilotid, routeid, dateadded) VALUES (?, ?, NOW())', array($pilotID, $database->getLastInsertID('id')));
