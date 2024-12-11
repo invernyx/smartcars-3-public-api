@@ -144,7 +144,15 @@ else
     $query .= ' AND enabled=1';
 }
 
-$query .= ' ORDER BY id DESC LIMIT 100';
+$limit = 100;
+if ($_GET['limit'] !== null) {
+    assertData($_GET, array('limit' => 'int'));
+    $limit = intval($_GET['limit']);
+    $limit = $limit > 100 ? 100 : $limit;
+}
+
+$query .= ' ORDER BY submitdate DESC LIMIT ' . $limit;
+
 $results = $database->fetch($query, $parameters);
 
 foreach($results as $index=>$result)
