@@ -151,7 +151,7 @@ if ($_GET['limit'] !== null) {
     $limit = $limit > 100 ? 100 : $limit;
 }
 
-$query .= ' ORDER BY submitdate DESC LIMIT ' . $limit;
+$query .= ' ORDER BY id DESC LIMIT ' . $limit;
 
 $results = $database->fetch($query, $parameters);
 
