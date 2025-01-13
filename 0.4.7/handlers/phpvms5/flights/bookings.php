@@ -1,4 +1,6 @@
 <?php
+$database->createTable('smartCARS3_BidAircraft', 'bidID int(11) NOT NULL, aircraftID int(11) NOT NULL, PRIMARY KEY(bidID)');
+
 $schedules = $database->fetch(
 'SELECT bids.bidid as bidID, schedules.code, schedules.flightnum AS number, schedules.flighttype AS type, schedules.depicao AS departureAirport, schedules.arricao AS arrivalAirport, schedules.route, schedules.aircraft,schedules.flightlevel AS flightLevel,schedules.deptime AS departureTime,schedules.arrtime AS arrivalTime,CAST(schedules.flighttime AS DECIMAL(4,2)) AS flightTime, schedules.distance, schedules.daysofweek AS daysOfWeek, schedules.notes FROM ' . dbPrefix . 'bids AS bids
 INNER JOIN ' . dbPrefix . 'schedules AS schedules ON schedules.id = bids.routeid
@@ -58,7 +60,12 @@ foreach($schedules as $idx=>$schedule)
     $minutes = ($duration - $hours) * (5 / 3);
     $schedules[$idx]['flightTime'] = floatval($hours + $minutes);
     // Aircraft
-    $schedules[$idx]['aircraft'] = intval($schedules[$idx]['aircraft']);
+
+    $bidAircraft = $database->fetch('SELECT aircraftID FROM smartCARS3_BidAircraft WHERE bidID = ?', array($schedules[$idx]['bidID']));
+    if(count($bidAircraft) > 0)
+        $schedules[$idx]['aircraft'] = intval($bidAircraft[0]['aircraftID']);
+    else
+        $schedules[$idx]['aircraft'] = intval($schedules[$idx]['aircraft']);
 }
 
 echo(json_encode($schedules));

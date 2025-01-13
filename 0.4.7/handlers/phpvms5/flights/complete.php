@@ -94,6 +94,8 @@ if($locationData === array())
     exit;
 }
 
+$database->execute('DELETE FROM smartCARS3_BidAircraft WHERE bidid=?', array($_POST['bidID']));
+
 if($route['notes'] === 'smartCARS Charter Flight') {
     $database->execute('DELETE FROM ' . dbPrefix . 'schedules WHERE id=?', array($bids[0]['routeid']));
     $charterFlights = $database->fetch('SELECT id FROM ' . dbPrefix . 'schedules WHERE code=? AND notes="smartCARS Charter Flight"', array($route['code']));
