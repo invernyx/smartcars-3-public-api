@@ -1,7 +1,7 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "version": "0.4.7",
+        "version": "1.0.0",
         "title": "smartCARS 3 Public API"
     },
     "paths": {
@@ -163,10 +163,16 @@
                             "schema": {
                                 "type": "object",
                                 "required": [
-                                    "flightID"
+                                    "flightID",
+                                    "aircraftID"
                                 ],
                                 "properties": {
                                     "flightID": {
+                                        "type": "integer",
+                                        "format": "int32",
+                                        "minimum": 0
+                                    },
+                                    "aircraftID": {
                                         "type": "integer",
                                         "format": "int32",
                                         "minimum": 0
@@ -260,6 +266,92 @@
                     },
                     "409": {
                         "description": "409 - A pilot already has this flight booked or the pilot has an existing booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/flights/rebook": {
+            "post": {
+                "summary": "Update an existing bid",
+                "description": "Update the aircraft of an existing bid",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "bidID",
+                                    "aircraft"
+                                ],
+                                "properties": {
+                                    "bidID": {
+                                        "type": "integer",
+                                        "format": "int32",
+                                        "minimum": 0
+                                    },
+                                    "aircraft": {
+                                        "type": "integer",
+                                        "format": "int32",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "200 - Successfully rebooked the flight",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "bidID"
+                                    ],
+                                    "properties": {
+                                        "bidID": {
+                                            "type": "integer",
+                                            "format": "int32",
+                                            "minimum": 0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "400 - Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "401 - Invalid session",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/UnauthorizedError"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "405 - The POST method was not used",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -443,6 +535,91 @@
                                 "schema": {
                                     "type": "object",
                                     "$ref": "#/components/schemas/UnauthorizedError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/flights/start": {
+            "post": {
+                "summary": "Start Flight",
+                "description": "Start a booked or created flight",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "bidID"
+                                ],
+                                "properties": {
+                                    "bidID": {
+                                        "oneOf": [
+                                            {
+                                                "type": "integer",
+                                                "format": "int32"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "200 - Successfully started the flight",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "trackingID"
+                                    ],
+                                    "properties": {
+                                        "trackingID": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9]{12}$"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "400 - Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "401 - Invalid session",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/UnauthorizedError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "404 - Flight booking not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/Error"
                                 }
                             }
                         }
