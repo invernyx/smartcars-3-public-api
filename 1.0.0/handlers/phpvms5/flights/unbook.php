@@ -15,6 +15,7 @@ if($bid !== array())
         $database->execute('DELETE FROM ' . dbPrefix . 'schedules WHERE id=?', array($flight['id']));
     }
     $database->execute('DELETE FROM ' . dbPrefix . 'bids WHERE pilotid=? AND bidid=?', array($pilotID, $_POST['bidID']));
+    $database->execute('DELETE FROM smartCARS3_BidAircraft WHERE bidid=?', array($_POST['bidID']));
 }
 else
 {

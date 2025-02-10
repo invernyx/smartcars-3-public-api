@@ -94,13 +94,11 @@ if($locationData === array())
     exit;
 }
 
+$database->execute('DELETE FROM smartCARS3_BidAircraft WHERE bidid=?', array($_POST['bidID']));
+
 if($route['notes'] === 'smartCARS Charter Flight') {
     $database->execute('DELETE FROM ' . dbPrefix . 'schedules WHERE id=?', array($bids[0]['routeid']));
     $charterFlights = $database->fetch('SELECT id FROM ' . dbPrefix . 'schedules WHERE code=? AND notes="smartCARS Charter Flight"', array($route['code']));
-    if($charterFlights === array())
-    {
-        $database->execute('DELETE FROM ' . dbPrefix . 'airlines WHERE code=? AND name="Charter" AND enabled=0', array($route['code']));
-    }
 }
 
 $database->execute('INSERT INTO smartCARS3_FlightData (pilotID, pirepID, locations, log) VALUES (?, ?, ?, ?)', array($pilotID, $pirepID, gzencode(json_encode($locationData)), gzencode(json_encode($_POST['flightData']))));

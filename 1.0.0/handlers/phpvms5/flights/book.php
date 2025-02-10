@@ -6,6 +6,13 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST')
 }
 assertData($_POST, array('flightID' => 'string'));
 
+$aircraftID = "";
+if(isset($_POST['aircraftID']))
+{
+    assertData($_POST, array('aircraftID' => 'integer'));
+    $aircraftID = $_POST['aircraftID'];
+}
+
 $schedule = $database->fetch('SELECT id FROM ' . dbPrefix . 'schedules WHERE id=?', array($_POST['flightID']));
 if($schedule === array())
 {
@@ -21,6 +28,10 @@ if($bids !== array())
 }
 // TODO: Rank/aircraft restriction applied here
 $database->execute('INSERT INTO ' . dbPrefix . 'bids (pilotid, routeid, dateadded) VALUES (?, ?, NOW())', array($pilotID, $_POST['flightID']));
+$bidid = $database->getLastInsertID('bidid');
 
-echo(json_encode(array('bidID'=>intval($database->getLastInsertID('bidid')))));
+if($aircraftID !== "")
+    $database->execute('INSERT INTO smartCARS3_BidAircraft (bidID, aircraftID) VALUES (?, ?)', array($bidid, $aircraftID));
+
+echo(json_encode(array('bidID'=>intval($bidid))));
 ?>
