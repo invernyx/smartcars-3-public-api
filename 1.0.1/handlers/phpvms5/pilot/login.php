@@ -72,7 +72,7 @@ while(strlen($pilotnum) < pilotIDLength)
 }
 $pilotid .= $pilotnum;
 
-$rank = $database->fetch('SELECT rank as name, rankimage FROM ' . dbPrefix . 'ranks WHERE rankid=?', array($result['rankid']));
+$rank = $database->fetch('SELECT `rank` as name, rankimage FROM ' . dbPrefix . 'ranks WHERE rankid=?', array($result['rankid']));
 if($rank === array())
 {
     error(500, 'The rank for this pilot does not exist');
