@@ -14,45 +14,43 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST')
 {
     error(405, 'POST request method expected, received a ' . $_SERVER['REQUEST_METHOD'] . ' request instead.');
 }
-if($_GET['username'] === null)
+if($_POST['session'] === null)
 {
-    error(400, 'Username is a required parameter (type `string`)');
+    error(400, 'Session is a required field (type `string`)');
 }
-if($_POST['password'] === null)
-{
-    error(400, 'Password is a required field (type `string`)');
-}
-assertData($_GET, array('username' => 'string'));
-assertData($_POST, array('password' => 'string'));
+assertData($_POST, array('session' => 'string'));
 
-if(strpos($_GET['username'], '@'))
+$session = explode('.', $_POST['session']);
+if(count($session) !== 3)
 {
-    $result = $database->fetch('SELECT code, pilotid, firstname, lastname, email, rankid, retired, confirmed, password, salt FROM ' . dbPrefix . 'pilots WHERE email=?', array($_GET['username']));
+    error(400, 'The session provided was not in valid JWT format');
 }
-else
+$session[0] = json_decode(base64_decode(str_replace(array('-', '_', ''), array('+', '/', '='), $session[0])), true);
+$session[1] = json_decode(base64_decode(str_replace(array('-', '_', ''), array('+', '/', '='), $session[1])), true);
+if($session[0] === null || $session[1] === null)
 {
-    $result = $database->fetch('SELECT code, pilotid, firstname, lastname, email, rankid, retired, confirmed, password, salt FROM ' . dbPrefix . 'pilots WHERE pilotid=?', array($_GET['username']));
+    error(400, 'The session provided was not in valid JWT format');
 }
-
+if($session[0]['alg'] !== 'HS256' || $session[0]['typ'] !== 'JWT')
+{
+    error(401, 'The session given was not signed by this website');
+}
+if($session[1]['sub'] === null || $session[1]['exp'] === null)
+{
+    error(401, 'The session given was not signed by this website');
+}
+$validSessions = $database->fetch('SELECT sessionID FROM smartCARS3_Sessions WHERE pilotID=? AND expiry=? AND sessionID=?', array($session[1]['sub'], $session[1]['exp'], $_POST['session']));
+if(count($validSessions) === 0)
+{
+    error(401, 'The session given was not valid');
+}
+$result = $database->fetch('SELECT code, pilotid, firstname, lastname, email, rankid FROM ' . dbPrefix . 'pilots WHERE pilotid=?', array($session[1]['sub']));
 if($result === array())
 {
-    error(401, 'The username or password was not correct');
+    error(500, 'The session was found, but there was no valid pilot. Please report this to the VA');
 }
 $result = $result[0];
 
-if($result['retired'] !== 0 && !fetchRetiredPilots)
-{
-    // What do we actually want to do here? It's a valid pilot with no access
-}
-if($result['confirmed'] === 0)
-{
-    error(409, 'The pilot has not been confirmed with this airline yet');
-}
-$md5Hash = md5($_POST['password'] . $result['salt']);
-if($md5Hash !== $result['password'])
-{
-    error(401, 'The username or password was not correct');
-}
 $expiry = time() + 604800;
 $JWTHeader = json_encode(array('typ' => 'JWT', 'alg' => 'HS256'));
 $JWTPayload = json_encode(array('sub' => $result['pilotid'], 'exp' => $expiry));
@@ -61,6 +59,7 @@ $JWTPayload = str_replace(array('+', '/', '='), array('-', '_', ''), base64_enco
 $JWTSignature = hash_hmac('sha256', $JWTHeader . '.' . $JWTPayload, uniqid('', true), true);
 $JWTSignature = str_replace(array('+', '/', '='), array('-', '_', ''), base64_encode($JWTSignature));
 $jwt = $JWTHeader . '.' . $JWTPayload . '.' . $JWTSignature;
+
 $database->insert('smartCARS3_Sessions', array('pilotID' => $result['pilotid'], 'sessionID' => $jwt, 'expiry' => $expiry));
 
 $dbid = intval($result['pilotid']);
@@ -72,7 +71,7 @@ while(strlen($pilotnum) < pilotIDLength)
 }
 $pilotid .= $pilotnum;
 
-$rank = $database->fetch('SELECT rank as name, rankimage FROM ' . dbPrefix . 'ranks WHERE rankid=?', array($result['rankid']));
+$rank = $database->fetch('SELECT `rank` as name, rankimage FROM ' . dbPrefix . 'ranks WHERE rankid=?', array($result['rankid']));
 if($rank === array())
 {
     error(500, 'The rank for this pilot does not exist');
@@ -99,7 +98,7 @@ if(file_exists(webRoot . $avatarFile))
 }
 
 echo(json_encode(array(
-    'dbID' => $dbid,
+    'dbID' => $dbid,    
     'pilotID' => $pilotid,
     'firstName' => $result['firstname'],
     'lastName' => $result['lastname'],

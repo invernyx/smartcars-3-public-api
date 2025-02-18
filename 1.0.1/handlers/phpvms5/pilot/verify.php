@@ -51,17 +51,6 @@ if($result === array())
 }
 $result = $result[0];
 
-$expiry = time() + 604800;
-$JWTHeader = json_encode(array('typ' => 'JWT', 'alg' => 'HS256'));
-$JWTPayload = json_encode(array('sub' => $result['pilotid'], 'exp' => $expiry));
-$JWTHeader = str_replace(array('+', '/', '='), array('-', '_', ''), base64_encode($JWTHeader));
-$JWTPayload = str_replace(array('+', '/', '='), array('-', '_', ''), base64_encode($JWTPayload));
-$JWTSignature = hash_hmac('sha256', $JWTHeader . '.' . $JWTPayload, uniqid('', true), true);
-$JWTSignature = str_replace(array('+', '/', '='), array('-', '_', ''), base64_encode($JWTSignature));
-$jwt = $JWTHeader . '.' . $JWTPayload . '.' . $JWTSignature;
-
-$database->insert('smartCARS3_Sessions', array('pilotID' => $result['pilotid'], 'sessionID' => $jwt, 'expiry' => $expiry));
-
 $dbid = intval($result['pilotid']);
 $pilotid = $result['code'];
 $pilotnum = (string)($dbid + intval(pilotOffset));
@@ -71,7 +60,7 @@ while(strlen($pilotnum) < pilotIDLength)
 }
 $pilotid .= $pilotnum;
 
-$rank = $database->fetch('SELECT rank as name, rankimage FROM ' . dbPrefix . 'ranks WHERE rankid=?', array($result['rankid']));
+$rank = $database->fetch('SELECT `rank` as name, rankimage FROM ' . dbPrefix . 'ranks WHERE rankid=?', array($result['rankid']));
 if($rank === array())
 {
     error(500, 'The rank for this pilot does not exist');
@@ -107,7 +96,7 @@ echo(json_encode(array(
     'rankImage' => $rankImage,
     'rankLevel' => intval($result['ranklevel']),
     'avatar' => $avatar,
-    'session' => $jwt,
-    'expiry' => $expiry,
+    'session' => $_POST['session'],
+    'expiry' => $session[1]['exp'],
 )));
 ?>
