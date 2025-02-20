@@ -9,7 +9,7 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST')
 }
 assertData($_POST, array('bidID' => 'integer'));
 
-if($database->fetch('SELECT id FROM ' . dbPrefix . 'bids WHERE bidid=? AND pilotid=?', array($_POST['bidID'], $pilotID)) === array())
+if($database->fetch('SELECT bidid FROM ' . dbPrefix . 'bids WHERE bidid=? AND pilotid=?', array($_POST['bidID'], $pilotID)) === array())
 {
     error(404, 'There is no ongoing flight');
 }
